@@ -1,9 +1,10 @@
 <?php
-session_start();
+
 include 'includes/config.php';
 include 'includes/header.php';
+require_once 'includes/auth.php';
 
-if (isset($_SESSION['user_id'])) {
+if (isLoggedIn()) {
     header("Location: index.php");
     exit;
 }

@@ -1,12 +1,10 @@
 <?php
-session_start();
-include 'includes/config.php';
-include 'includes/auth.php';
-requireAuth(); // This replaces the manual check
-include 'includes/header.php';
+require_once 'includes/config.php';
+require_once 'includes/auth.php';
+requireAuth();
+require_once 'includes/header.php';
 
-// Get today's date for streak tracking
-$today = date('Y-m-d');
+$monthlyStreaks = getMonthlyStreaks($pdo, $_SESSION['user_id']);
 ?>
 
 <div class="todo-container">
@@ -24,7 +22,6 @@ $today = date('Y-m-d');
     
     <ul class="todo-list">
         <?php
-        // Fetch user's tasks
         $stmt = $pdo->prepare("SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC");
         $stmt->execute([$_SESSION['user_id']]);
         $tasks = $stmt->fetchAll();
@@ -45,43 +42,40 @@ $today = date('Y-m-d');
     </ul>
 </div>
 
-<div class="streaks-container">
-    <h3 class="streak-title">Streaks</h3>
+<div class="monthly-progress">
+    <h3>Monthly Progress</h3>
+    <div class="month-grid">
+        <?php
+        $months = ['Feb', 'Mar', 'Apr', 'May', 'Jun']; // Example months
+        foreach ($months as $month): 
+        ?>
+        <div class="month-card">
+            <div class="month-name"><?= $month ?></div>
+            <div class="month-stats">0/<?= 
+                $month == 'Feb' ? '28' : 
+                ($month == 'Apr' || $month == 'Jun' ? '30' : '31') 
+            ?></div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+    
+    <div class="daily-streaks">
+    <h3>Daily Streak</h3>
     <div class="streak-days">
         <?php
-        // Get the last 4 days including today
-        $dates = [];
-        for ($i = 3; $i >= 0; $i--) {
-            $dates[] = date('Y-m-d', strtotime("-$i days"));
-        }
-        
-        // Fetch streak data for these dates
-        $streaks = [];
-        $stmt = $pdo->prepare("SELECT streak_date, status FROM streaks 
-                              WHERE user_id = ? AND streak_date BETWEEN ? AND ?");
-        $stmt->execute([$_SESSION['user_id'], $dates[0], end($dates)]);
-        $results = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-        
-        foreach ($dates as $date) {
-            $status = $results[$date] ?? 'pending';
-            $icon = '';
-            
-            if ($status === 'completed') {
-                $icon = '☑';
-                $class = 'streak-completed';
-            } elseif ($status === 'missed') {
-                $icon = '☒';
-                $class = 'streak-missed';
-            } else {
-                $icon = '☐';
-                $class = 'streak-pending';
-            }
-            
-            echo "<div class='streak-day $class'>$icon</div>";
-        }
+        // Show empty circles for new users
+        for ($i = 0; $i < 5; $i++): 
+            $isToday = $i === 4; // Last circle represents today
         ?>
+        <div class="streak-day <?= $isToday ? 'current-day' : '' ?>">
+            <?= $isToday ? '☐' : '○' ?>
+        </div>
+        <?php endfor; ?>
     </div>
 </div>
 
 <script src="assets/js/script.js"></script>
-<?php include 'includes/footer.php'; ?>
+</div>
+</body>
+</html>

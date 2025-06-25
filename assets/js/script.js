@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Toggle task completion
+    // Task completion toggle
     document.querySelectorAll('.task-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const taskId = this.dataset.taskId;
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Delete task
+    // Task deletion
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
             if (confirm('Are you sure you want to delete this task?')) {

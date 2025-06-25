@@ -10,6 +10,19 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
+CREATE TABLE monthly_streaks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    year INT NOT NULL,
+    month INT NOT NULL,
+    completed_days INT DEFAULT 0,
+    total_days INT DEFAULT 0,
+    last_updated DATE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_month_streak (user_id, year, month)
+);
+
 CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -23,6 +36,7 @@ CREATE TABLE streaks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     streak_date DATE NOT NULL,
+    is_completed_day BOOLEAN DEFAULT FALSE,
     status ENUM('completed', 'missed', 'pending') DEFAULT 'pending',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_streak (user_id, streak_date)
